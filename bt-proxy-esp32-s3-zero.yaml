@@ -1,0 +1,92 @@
+substitutions:
+  name: esphome-web-bt-proxy-stub
+  friendly_name: BT Proxy Stub
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2024.6.0
+  name_add_mac_suffix: false
+  platformio_options:
+    board_build.flash_mode: dio
+  project:
+    name: esphome.web
+    version: dev
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  baud_rate: 0
+
+# Enable Home Assistant API
+api:
+
+# Allow Over-The-Air updates
+ota:
+- platform: esphome
+
+# Allow provisioning Wi-Fi via serial
+# improv_serial:
+
+wifi:
+  # Set up a wifi access point
+  ap: {}
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device via WiFi AP.
+captive_portal:
+
+dashboard_import:
+  package_import_url: github://esphome/firmware/esphome-web/esp32s3.yaml@main
+  import_full_config: true
+
+# Sets up Bluetooth LE (Only on ESP32) to allow the user
+# to provision wifi credentials to the device.
+# esp32_improv:
+#   authorizer: none
+
+# To have a "next url" for improv serial
+web_server:
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi signal strength"
+    update_interval: 30s
+
+  - platform: uptime
+    name: "Uptime"
+    filters:
+      - lambda: return x / 3600.0;
+    unit_of_measurement: "hours"
+    icon: mdi:clock-start
+    accuracy_decimals: 2
+
+  - platform: internal_temperature
+    name: "Internal temperature"
+    update_interval: 20s
+
+button:
+  - platform: restart
+    name: "Restart"
+
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: RGB
+    pin: GPIO21
+    num_leds: 1
+    rmt_channel: 0
+    chipset: ws2812
+    name: "Board LED"
+
+# esp32_ble_tracker:
+#   scan_parameters:
+#     active: True # Whether to send scan-request packets to devices to gather more info (like devicename)
+#     interval: 320ms # suggested 211ms # default 320ms
+#     window:   300ms # suggested 120ms # default 30ms
+
+bluetooth_proxy:
+  active: True
